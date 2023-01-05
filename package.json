@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch --verbose=true",
@@ -23,6 +22,8 @@
   },
   "dependencies": {
     "consign": "^0.1.6",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "knex": "^2.3.0",
+    "pg": "^8.8.0"
   }
 }
