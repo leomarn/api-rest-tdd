@@ -2,7 +2,7 @@ const response = require('supertest');
 
 const app = require('../../src/app');
 
-test.only('Deve listar todos os usuários', async () => {
+test('Deve listar todos os usuários', async () => {
   const received = await response(app).get('/users');
 
   expect(received.status).toBe(200);
@@ -11,10 +11,10 @@ test.only('Deve listar todos os usuários', async () => {
 
 test('Deve inserir usuário com sucesso', async () => {
   const received = await response(app).post('/users').send({
-    name: 'Severus Snapes',
-    mail: 'severus@snapes.com',
+    name: 'Severus Snapes3',
+    mail: 'severus3@snapes.com',
     password: '123456',
   });
   expect(received.status).toBe(201);
-  expect(received.body).toHaveProperty('name', 'Severus Snapes');
+  expect(received.body).toHaveProperty('name', 'Severus Snapes3');
 });
