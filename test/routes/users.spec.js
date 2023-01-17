@@ -1,20 +1,60 @@
-const response = require('supertest');
+const request = require('supertest');
 
 const app = require('../../src/app');
 
+const email = `${Date.now()}severus3@snapes.com`;
+
 test('Deve listar todos os usuários', async () => {
-  const received = await response(app).get('/users');
+  const received = await request(app).get('/users');
 
   expect(received.status).toBe(200);
   expect(received.body.length).toBeGreaterThan(0);
 });
-
 test('Deve inserir usuário com sucesso', async () => {
-  const received = await response(app).post('/users').send({
+  const received = await request(app).post('/users').send({
     name: 'Severus Snapes3',
-    mail: 'severus3@snapes.com',
+    mail: email,
     password: '123456',
   });
   expect(received.status).toBe(201);
   expect(received.body).toHaveProperty('name', 'Severus Snapes3');
+});
+
+test('Não deve inserir usuário sem nome', async () => {
+  const receivid = await request(app)
+    .post('/users')
+    .send({ mail: 'test@gmail.com', password: '12345' });
+
+  expect(receivid.status).toBe(400);
+  expect(receivid.body.error).toBe('Nome é um atributo obrigatório');
+});
+
+test('Não deve inserir usuário sem email', async () => {
+  const received = await request(app)
+    .post('/users')
+    .send({ name: 'test', password: '12345' });
+
+  expect(received.status).toBe(400);
+  expect(received.body.error).toBe('Email é um atributo obrigatorio');
+});
+
+test('Não deve inserir usuário sem senha', async (done) => {
+  const received = await request(app)
+    .post('/users')
+    .send({ name: 'test', mail: '12345@test.com' });
+
+  expect(received.status).toBe(400);
+  expect(received.body.error).toBe('Senha é um atributo obrigatorio');
+  done();
+});
+
+test('Não deve inserir usuário com email existente', async () => {
+  const received = await request(app).post('/users').send({
+    name: 'Severus Snapes3',
+    mail: email,
+    password: '123456',
+  });
+
+  expect(received.status).toBe(400);
+  expect(received.body.error).toBe('Já existe usuário com esse email.');
 });
