@@ -1,6 +1,7 @@
 module.exports = (app) => {
-  const findAll = async () => app.db('accounts').select();
-  const create = async (account) => app.db('accounts').insert(account, '*');
+  const findAll = () => app.db('accounts').select();
+  const findOne = (filter = {}) => app.db('accounts').where(filter).first();
+  const create = (account) => app.db('accounts').insert(account, '*');
 
-  return { findAll, create };
+  return { findOne, findAll, create };
 };

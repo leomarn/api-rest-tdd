@@ -1,5 +1,6 @@
 module.exports = (app) => {
   const findAll = (filter = {}) => app.db('users').where(filter).select();
+
   const create = async (user) => {
     if (!user.name) return { error: 'Nome é um atributo obrigatório' };
     if (!user.mail) return { error: 'Email é um atributo obrigatorio' };
