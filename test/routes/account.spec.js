@@ -21,6 +21,15 @@ test('Deve inserir uma conta com sucesso', async () => {
   expect(receivid.body.name).toBe('Acc #1');
 });
 
+test('Não deve inserir conta sem atributo nome', async () => {
+  const receivid = await request(app)
+    .post('/accounts')
+    .send({ user_id: user.id });
+
+  expect(receivid.status).toBe(400);
+  expect(receivid.body.error).toBe('Nome é um atributo obrigatório');
+});
+
 test('Deve listar todas as contas', async () => {
   await app.db('accounts').insert({ name: 'Acc test', user_id: user.id });
   const receivid = await request(app).get('/accounts');
@@ -47,4 +56,12 @@ test('Deve alterar uma conta', async () => {
     .send({ name: 'Acc updated' });
   expect(receivid.status).toBe(200);
   expect(receivid.body.name).toBe('Acc updated');
+});
+
+test('Deve remover uma conta', async () => {
+  const account = await app
+    .db('accounts')
+    .insert({ name: 'Acc to remove', user_id: user.id }, ['id']);
+  const receivid = await request(app).delete(`/accounts/${account[0].id}`);
+  expect(receivid.status).toBe(204);
 });
