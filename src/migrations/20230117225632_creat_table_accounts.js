@@ -4,11 +4,10 @@
  */
 // eslint-disable-next-line arrow-body-style
 exports.up = (knex) => {
-  return knex.schema.createTable('users', (t) => {
+  return knex.schema.createTable('accounts', (t) => {
     t.increments('id').primary();
     t.string('name').notNullable();
-    t.string('mail').notNullable().unique();
-    t.string('password').notNullable();
+    t.integer('user_id').references('id').inTable('users').notNullable();
   });
 };
 
@@ -18,5 +17,5 @@ exports.up = (knex) => {
  */
 // eslint-disable-next-line arrow-body-style
 exports.down = (knex) => {
-  return knex.schema.dropTable('users');
+  return knex.schema.dropTable('accounts');
 };
