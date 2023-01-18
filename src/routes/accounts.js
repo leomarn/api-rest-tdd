@@ -11,12 +11,12 @@ module.exports = (app) => {
     response.status(200).json(account);
   };
 
-  const create = async (request, response) => {
+  const create = async (request, response, next) => {
     try {
       const result = await app.services.accounts.create(request.body);
       return response.status(201).send(result[0]);
     } catch (error) {
-      return response.status(400).json({ error: error.message });
+      return next(error);
     }
   };
 
