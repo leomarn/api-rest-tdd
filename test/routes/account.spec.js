@@ -37,3 +37,14 @@ test('Deve retornar uma conta por id', async () => {
   expect(receivid.body.name).toBe('Acc By id');
   expect(receivid.body.user_id).toBe(user.id);
 });
+
+test('Deve alterar uma conta', async () => {
+  const account = await app
+    .db('accounts')
+    .insert({ name: 'Acc to update', user_id: user.id }, ['id']);
+  const receivid = await request(app)
+    .put(`/accounts/${account[0].id}`)
+    .send({ name: 'Acc updated' });
+  expect(receivid.status).toBe(200);
+  expect(receivid.body.name).toBe('Acc updated');
+});
