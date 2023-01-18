@@ -12,9 +12,12 @@ module.exports = (app) => {
   };
 
   const create = async (request, response) => {
-    const result = await app.services.accounts.create(request.body);
-    if (result.error) return response.status(400).json(result);
-    return response.status(201).send(result[0]);
+    try {
+      const result = await app.services.accounts.create(request.body);
+      return response.status(201).send(result[0]);
+    } catch (error) {
+      return response.status(400).json({ error: error.message });
+    }
   };
 
   const update = async (request, response) => {
