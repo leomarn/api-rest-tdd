@@ -1,22 +1,37 @@
 const request = require('supertest');
-
+const jwt = require('jwt-simple');
 const app = require('../../src/app');
 
 const email = `${Date.now()}severus3@snapes.com`;
 
+beforeAll(async () => {
+  const receivid = await app.services.users.create({
+    name: 'user account',
+    mail: `${Date.now()}test@mail.com`,
+    password: '12345',
+  });
+  user = { ...receivid[0] };
+  user.token = jwt.encode(user, 'Segredo!');
+});
+
 test('Deve listar todos os usuários', async () => {
-  const received = await request(app).get('/users');
+  const received = await request(app)
+    .get('/users')
+    .set('authorization', `bearer ${user.token}`);
 
   expect(received.status).toBe(200);
   expect(received.body.length).toBeGreaterThan(0);
 });
 
 test('Deve inserir usuário com sucesso', async () => {
-  const received = await request(app).post('/users').send({
-    name: 'Severus Snapes3',
-    mail: email,
-    password: '123456',
-  });
+  const received = await request(app)
+    .post('/users')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      name: 'Severus Snapes3',
+      mail: email,
+      password: '123456',
+    });
   expect(received.status).toBe(201);
   expect(received.body.name).toBe('Severus Snapes3');
   expect(received.body).not.toHaveProperty('password');
@@ -25,6 +40,7 @@ test('Deve inserir usuário com sucesso', async () => {
 test('Deve armazenar senha criptografada', async () => {
   const received = await request(app)
     .post('/users')
+    .set('authorization', `bearer ${user.token}`)
     .send({
       name: 'Severus Snapes3',
       mail: `${Date.now()}severus3@snapes.com`,
@@ -41,6 +57,7 @@ test('Deve armazenar senha criptografada', async () => {
 test('Não deve inserir usuário sem nome', async () => {
   const receivid = await request(app)
     .post('/users')
+    .set('authorization', `bearer ${user.token}`)
     .send({ mail: 'test@gmail.com', password: '12345' });
 
   expect(receivid.status).toBe(400);
@@ -50,6 +67,7 @@ test('Não deve inserir usuário sem nome', async () => {
 test('Não deve inserir usuário sem email', async () => {
   const received = await request(app)
     .post('/users')
+    .set('authorization', `bearer ${user.token}`)
     .send({ name: 'test', password: '12345' });
 
   expect(received.status).toBe(400);
@@ -59,6 +77,7 @@ test('Não deve inserir usuário sem email', async () => {
 test('Não deve inserir usuário sem senha', async (done) => {
   const received = await request(app)
     .post('/users')
+    .set('authorization', `bearer ${user.token}`)
     .send({ name: 'test', mail: '12345@test.com' });
 
   expect(received.status).toBe(400);
@@ -67,11 +86,14 @@ test('Não deve inserir usuário sem senha', async (done) => {
 });
 
 test('Não deve inserir usuário com email existente', async () => {
-  const received = await request(app).post('/users').send({
-    name: 'Severus Snapes3',
-    mail: email,
-    password: '123456',
-  });
+  const received = await request(app)
+    .post('/users')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      name: 'Severus Snapes3',
+      mail: email,
+      password: '123456',
+    });
 
   expect(received.status).toBe(400);
   expect(received.body.error).toBe('Já existe usuário com esse email.');
