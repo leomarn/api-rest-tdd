@@ -43,3 +43,9 @@ test('Não deve autenticar inexistente', async () => {
   expect(receivid.status).toBe(400);
   expect(receivid.body.error).toBe('Usuário ou senha inválida');
 });
+
+test('Não deve acessar rota protegida sem token', async () => {
+  const receivid = await request(app).get('/users');
+
+  expect(receivid.status).toBe(401);
+});

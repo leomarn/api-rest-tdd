@@ -10,6 +10,7 @@ app.use(express.json());
 app.db = knex(knexfile.test);
 
 consign({ cwd: 'src', verbose: false })
+  .include('./config/passport.js')
   .include('./config/middlewares.js')
   .then('./services')
   .then('./routes')
