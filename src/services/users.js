@@ -1,7 +1,15 @@
+const bcrypt = require('bcrypt-nodejs');
 const validationError = require('../errors/validationError');
 
 module.exports = (app) => {
-  const findAll = (filter = {}) => app.db('users').where(filter).select();
+  const findAll = () => app.db('users').select(['id', 'name', 'mail']);
+
+  const findOne = (filter = {}) => app.db('users').where(filter).first();
+
+  const getPasswordHas = (password) => {
+    const salt = bcrypt.genSaltSync(10);
+    return bcrypt.hashSync(password, salt);
+  };
 
   const create = async (user) => {
     if (!user.name) throw new validationError('Nome é um atributo obrigatório');
@@ -10,12 +18,12 @@ module.exports = (app) => {
     if (!user.password)
       throw new validationError('Senha é um atributo obrigatorio');
 
-    const userDB = await findAll({ mail: user.mail });
-    if (userDB && userDB.length > 0) {
-      throw new validationError('Já existe usuário com esse email.');
-    }
-    return app.db('users').insert(user, '*');
+    const userDB = await findOne({ mail: user.mail });
+    if (userDB) throw new validationError('Já existe usuário com esse email.');
+
+    user.password = getPasswordHas(user.password);
+    return app.db('users').insert(user, ['id', 'name', 'mail']);
   };
 
-  return { findAll, create };
+  return { findAll, create, findOne };
 };
