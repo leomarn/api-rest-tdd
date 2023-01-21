@@ -1,6 +1,21 @@
 const request = require('supertest');
 const app = require('../../src/app');
 
+test('Deve criar usuário via signup', async () => {
+  const receivid = await request(app)
+    .post('/auth/signup')
+    .send({
+      name: 'novo usuario',
+      mail: `${Date.now()}@new.user`,
+      password: '123456',
+    });
+
+  expect(receivid.status).toBe(201);
+  expect(receivid.body.name).toBe('novo usuario');
+  expect(receivid.body).toHaveProperty('mail');
+  expect(receivid.body).not.toHaveProperty('password');
+});
+
 test('Deve receber token ao logar', async () => {
   const mail = `${Date.now()}@mail.com`;
 
@@ -11,7 +26,7 @@ test('Deve receber token ao logar', async () => {
   });
 
   const receivid = await request(app)
-    .post('/auth/singin')
+    .post('/auth/signin')
     .send({ mail, password: '123456' });
 
   expect(receivid.status).toBe(200);
@@ -28,7 +43,7 @@ test('Não deve autenticar usuário com senha errada', async () => {
   });
 
   const receivid = await request(app)
-    .post('/auth/singin')
+    .post('/auth/signin')
     .send({ mail, password: '654321' });
 
   expect(receivid.status).toBe(400);
@@ -37,7 +52,7 @@ test('Não deve autenticar usuário com senha errada', async () => {
 
 test('Não deve autenticar inexistente', async () => {
   const receivid = await request(app)
-    .post('/auth/singin')
+    .post('/auth/signin')
     .send({ mail: 'naoexiste@esse.email', password: '654321' });
 
   expect(receivid.status).toBe(400);
