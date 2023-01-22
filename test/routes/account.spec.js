@@ -16,7 +16,7 @@ beforeAll(async () => {
 
 test('Deve inserir uma conta com sucesso', async () => {
   const receivid = await request(app)
-    .post('/accounts')
+    .post('/api/accounts')
     .set('authorization', `bearer ${user.token}`)
     .send({ name: 'Acc #1', user_id: user.id });
 
@@ -26,7 +26,7 @@ test('Deve inserir uma conta com sucesso', async () => {
 
 test('Não deve inserir conta sem atributo nome', async () => {
   const receivid = await request(app)
-    .post('/accounts')
+    .post('/api/accounts')
     .set('authorization', `bearer ${user.token}`)
     .send({ user_id: user.id });
 
@@ -37,7 +37,7 @@ test('Não deve inserir conta sem atributo nome', async () => {
 test('Deve listar todas as contas', async () => {
   await app.db('accounts').insert({ name: 'Acc test', user_id: user.id });
   const receivid = await request(app)
-    .get('/accounts')
+    .get('/api/accounts')
     .set('authorization', `bearer ${user.token}`);
   expect(receivid.status).toBe(200);
   expect(receivid.body.length).toBeGreaterThan(0);
@@ -48,7 +48,7 @@ test('Deve retornar uma conta por id', async () => {
     .db('accounts')
     .insert({ name: 'Acc By id', user_id: user.id }, ['id']);
   const receivid = await request(app)
-    .get(`/accounts/${account[0].id}`)
+    .get(`/api/accounts/${account[0].id}`)
     .set('authorization', `bearer ${user.token}`);
   expect(receivid.status).toBe(200);
   expect(receivid.body.name).toBe('Acc By id');
@@ -60,7 +60,7 @@ test('Deve alterar uma conta', async () => {
     .db('accounts')
     .insert({ name: 'Acc to update', user_id: user.id }, ['id']);
   const receivid = await request(app)
-    .put(`/accounts/${account[0].id}`)
+    .put(`/api/accounts/${account[0].id}`)
     .set('authorization', `bearer ${user.token}`)
     .send({ name: 'Acc updated' });
   expect(receivid.status).toBe(200);
@@ -72,7 +72,7 @@ test('Deve remover uma conta', async () => {
     .db('accounts')
     .insert({ name: 'Acc to remove', user_id: user.id }, ['id']);
   const receivid = await request(app)
-    .delete(`/accounts/${account[0].id}`)
+    .delete(`/api/accounts/${account[0].id}`)
     .set('authorization', `bearer ${user.token}`);
   expect(receivid.status).toBe(204);
 });

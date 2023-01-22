@@ -60,7 +60,7 @@ test('Não deve autenticar inexistente', async () => {
 });
 
 test('Não deve acessar rota protegida sem token', async () => {
-  const receivid = await request(app).get('/users');
+  const receivid = await request(app).get('/api/users');
 
   expect(receivid.status).toBe(401);
 });

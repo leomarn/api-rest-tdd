@@ -16,7 +16,7 @@ beforeAll(async () => {
 
 test('Deve listar todos os usuários', async () => {
   const received = await request(app)
-    .get('/users')
+    .get('/api/users')
     .set('authorization', `bearer ${user.token}`);
 
   expect(received.status).toBe(200);
@@ -25,7 +25,7 @@ test('Deve listar todos os usuários', async () => {
 
 test('Deve inserir usuário com sucesso', async () => {
   const received = await request(app)
-    .post('/users')
+    .post('/api/users')
     .set('authorization', `bearer ${user.token}`)
     .send({
       name: 'Severus Snapes3',
@@ -39,7 +39,7 @@ test('Deve inserir usuário com sucesso', async () => {
 
 test('Deve armazenar senha criptografada', async () => {
   const received = await request(app)
-    .post('/users')
+    .post('/api/users')
     .set('authorization', `bearer ${user.token}`)
     .send({
       name: 'Severus Snapes3',
@@ -56,7 +56,7 @@ test('Deve armazenar senha criptografada', async () => {
 
 test('Não deve inserir usuário sem nome', async () => {
   const receivid = await request(app)
-    .post('/users')
+    .post('/api/users')
     .set('authorization', `bearer ${user.token}`)
     .send({ mail: 'test@gmail.com', password: '12345' });
 
@@ -66,7 +66,7 @@ test('Não deve inserir usuário sem nome', async () => {
 
 test('Não deve inserir usuário sem email', async () => {
   const received = await request(app)
-    .post('/users')
+    .post('/api/users')
     .set('authorization', `bearer ${user.token}`)
     .send({ name: 'test', password: '12345' });
 
@@ -76,7 +76,7 @@ test('Não deve inserir usuário sem email', async () => {
 
 test('Não deve inserir usuário sem senha', async (done) => {
   const received = await request(app)
-    .post('/users')
+    .post('/api/users')
     .set('authorization', `bearer ${user.token}`)
     .send({ name: 'test', mail: '12345@test.com' });
 
@@ -87,7 +87,7 @@ test('Não deve inserir usuário sem senha', async (done) => {
 
 test('Não deve inserir usuário com email existente', async () => {
   const received = await request(app)
-    .post('/users')
+    .post('/api/users')
     .set('authorization', `bearer ${user.token}`)
     .send({
       name: 'Severus Snapes3',
