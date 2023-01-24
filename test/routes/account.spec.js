@@ -42,6 +42,18 @@ test('Não deve inserir conta sem atributo nome', async () => {
   expect(receivid.body.error).toBe('Nome é um atributo obrigatório');
 });
 
+test('Não deve inserir conta de nome duplicado, para o mesmo usuário', async () => {
+  await app.db('accounts').insert({ name: 'Acc duplicada', user_id: user.id });
+
+  const receivid = await request(app)
+    .post('/api/accounts')
+    .set('authorization', `bearer ${user.token}`)
+    .send({ name: 'Acc duplicada' });
+
+  expect(receivid.status).toBe(400);
+  expect(receivid.body.error).toBe('Já existe uma conta com esse nome');
+});
+
 test('Deve listar apenas as contas do usuário', async () => {
   await app.db('accounts').insert([
     { name: 'Acc user #1', user_id: user.id },
