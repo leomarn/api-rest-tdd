@@ -13,6 +13,7 @@ module.exports = (app) => {
       name: account.name,
       user_id: account.user_id,
     });
+
     if (accDb) throw new validationError('Já existe uma conta com esse nome');
 
     return await app.db('accounts').insert(account, '*');

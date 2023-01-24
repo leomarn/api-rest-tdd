@@ -21,9 +21,9 @@ app.get('/', (request, response) => response.status(200).send());
 
 app.use((error, request, response, next) => {
   const { name, message, stack } = error;
-  name === 'validationError'
-    ? response.status(400).json({ error: message })
-    : response.status(500).json({ name, message, stack });
+  if (name === 'validationError') response.status(400).json({ error: message });
+  if (name === 'indevidoError') response.status(403).json({ error: message });
+  else response.status(500).json({ name, message, stack });
   next(error);
 });
 

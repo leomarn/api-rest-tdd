@@ -83,6 +83,19 @@ test('Deve retornar uma conta por id', async () => {
   expect(receivid.body.user_id).toBe(user.id);
 });
 
+test('Não deve retornar uma conta de outro usuário', async () => {
+  const account = await app
+    .db('accounts')
+    .insert({ name: 'Acc User #2', user_id: user2.id }, ['id']);
+
+  const receivid = await request(app)
+    .get(`/api/accounts/${account[0].id}`)
+    .set('authorization', `bearer ${user.token}`);
+
+  expect(receivid.status).toBe(403);
+  expect(receivid.body.error).toBe('Este recurso não pertence ao usuário');
+});
+
 test('Deve alterar uma conta', async () => {
   const account = await app
     .db('accounts')
@@ -97,6 +110,20 @@ test('Deve alterar uma conta', async () => {
   expect(receivid.body.name).toBe('Acc updated');
 });
 
+test('Não deve alterar uma conta de outro usuário', async () => {
+  const account = await app
+    .db('accounts')
+    .insert({ name: 'Acc User #2', user_id: user2.id }, ['id']);
+
+  const receivid = await request(app)
+    .put(`/api/accounts/${account[0].id}`)
+    .send({ name: 'Acc Updated' })
+    .set('authorization', `bearer ${user.token}`);
+
+  expect(receivid.status).toBe(403);
+  expect(receivid.body.error).toBe('Este recurso não pertence ao usuário');
+});
+
 test('Deve remover uma conta', async () => {
   const account = await app
     .db('accounts')
@@ -107,4 +134,17 @@ test('Deve remover uma conta', async () => {
     .set('authorization', `bearer ${user.token}`);
 
   expect(receivid.status).toBe(204);
+});
+
+test('Não deve remover uma conta de outro usuário', async () => {
+  const account = await app
+    .db('accounts')
+    .insert({ name: 'Acc User #2', user_id: user2.id }, ['id']);
+
+  const receivid = await request(app)
+    .delete(`/api/accounts/${account[0].id}`)
+    .set('authorization', `bearer ${user.token}`);
+
+  expect(receivid.status).toBe(403);
+  expect(receivid.body.error).toBe('Este recurso não pertence ao usuário');
 });
