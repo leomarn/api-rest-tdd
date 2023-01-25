@@ -76,11 +76,92 @@ test('Deve inserir uma transação com sucesso', async () => {
     .send({
       description: 'New T',
       date: new Date(),
-      ammount: 100,
+      ammount: 400,
       type: 'I',
       acc_id: accUser.id,
     });
 
   expect(received.status).toBe(201);
   expect(received.body[0].acc_id).toBe(accUser.id);
+});
+
+it('Deve retornar uma transação por ID', async () => {
+  const transaction = await app.db('transactions').insert(
+    {
+      description: 'T Id',
+      date: new Date(),
+      ammount: 400,
+      type: 'I',
+      acc_id: accUser.id,
+    },
+    ['id']
+  );
+
+  const received = await request(app)
+    .get(`/api/transactions/${transaction[0].id}`)
+    .set('authorization', `bearer ${user.token}`);
+
+  expect(received.status).toBe(200);
+  expect(received.body.id).toBe(transaction[0].id);
+  expect(received.body.description).toBe('T Id');
+});
+
+it('Deve alterar uma transação', async () => {
+  const transaction = await app.db('transactions').insert(
+    {
+      description: 'T to Update',
+      date: new Date(),
+      ammount: 200,
+      type: 'I',
+      acc_id: accUser.id,
+    },
+    ['id']
+  );
+
+  const received = await request(app)
+    .put(`/api/transactions/${transaction[0].id}`)
+    .send({ description: 'T Updated' })
+    .set('authorization', `bearer ${user.token}`);
+
+  expect(received.status).toBe(200);
+  expect(received.body.description).toBe('T Updated');
+});
+
+it('Deve remover uma transação', async () => {
+  const transaction = await app.db('transactions').insert(
+    {
+      description: 'T to delete',
+      date: new Date(),
+      ammount: 200,
+      type: 'I',
+      acc_id: accUser.id,
+    },
+    ['id']
+  );
+
+  const received = await request(app)
+    .delete(`/api/transactions/${transaction[0].id}`)
+    .set('authorization', `bearer ${user.token}`);
+
+  expect(received.status).toBe(204);
+});
+
+it('Não deve remover uma transação de outro usuário', async () => {
+  const transaction = await app.db('transactions').insert(
+    {
+      description: 'T to delete',
+      date: new Date(),
+      ammount: 200,
+      type: 'I',
+      acc_id: accUser2.id,
+    },
+    ['id']
+  );
+
+  const received = await request(app)
+    .delete(`/api/transactions/${transaction[0].id}`)
+    .set('authorization', `bearer ${user.token}`);
+
+  expect(received.status).toBe(403);
+  expect(received.body.error).toBe('Este recurso não pertence ao usuário');
 });

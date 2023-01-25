@@ -8,9 +8,21 @@ module.exports = (app) => {
       .select();
   };
 
+  const findOne = (id) => {
+    return app.db('transactions').where({ id }).first();
+  };
+
   const create = (transaction) => {
     return app.db('transactions').insert(transaction, '*');
   };
 
-  return { find, create };
+  const update = (id, transaction) => {
+    return app.db('transactions').where({ id }).update(transaction, '*');
+  };
+
+  const remove = (id) => {
+    return app.db('transactions').where({ id }).del();
+  };
+
+  return { find, create, findOne, update, remove };
 };
