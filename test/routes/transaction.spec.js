@@ -119,6 +119,97 @@ it('Transações de saídas devem ser negativas', async () => {
   expect(received.body[0].ammount).toBe('-400.00');
 });
 
+it('Não deve inserir uma transação sem descrição', async () => {
+  const received = await request(app)
+    .post('/api/transactions')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      date: new Date(),
+      ammount: 400,
+      type: 'O',
+      acc_id: accUser.id,
+    });
+
+  expect(received.status).toBe(400);
+  expect(received.body.error).toBe('Descrição é um atributo obrigatório');
+});
+
+it('Não deve inserir uma transação sem valor', async () => {
+  const received = await request(app)
+    .post('/api/transactions')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      description: 'New T',
+      date: new Date(),
+      type: 'O',
+      acc_id: accUser.id,
+    });
+
+  expect(received.status).toBe(400);
+  expect(received.body.error).toBe('Valor é um atributo obrigatório');
+});
+
+it('Não deve inserir uma transação sem data', async () => {
+  const received = await request(app)
+    .post('/api/transactions')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      description: 'New T',
+      ammount: 400,
+      type: 'O',
+      acc_id: accUser.id,
+    });
+
+  expect(received.status).toBe(400);
+  expect(received.body.error).toBe('Data é um atributo obrigatório');
+});
+
+it('Não deve inserir uma transação sem conta', async () => {
+  const received = await request(app)
+    .post('/api/transactions')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      description: 'New T',
+      date: new Date(),
+      ammount: 400,
+      type: 'O',
+    });
+
+  expect(received.status).toBe(400);
+  expect(received.body.error).toBe('Conta é um atributo obrigatório');
+});
+
+it('Não deve inserir uma transação sem tipo', async () => {
+  const received = await request(app)
+    .post('/api/transactions')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      description: 'New T',
+      date: new Date(),
+      ammount: 400,
+      acc_id: accUser.id,
+    });
+
+  expect(received.status).toBe(400);
+  expect(received.body.error).toBe('Tipo é um atributo obrigatório');
+});
+
+it('Não deve inserir uma transação sem tipo inválido', async () => {
+  const received = await request(app)
+    .post('/api/transactions')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      description: 'New T',
+      date: new Date(),
+      ammount: 400,
+      type: 'A',
+      acc_id: accUser.id,
+    });
+
+  expect(received.status).toBe(400);
+  expect(received.body.error).toBe('Tipo é um atributo inválido');
+});
+
 it('Deve retornar uma transação por ID', async () => {
   const transaction = await app.db('transactions').insert(
     {
