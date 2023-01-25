@@ -85,6 +85,40 @@ test('Deve inserir uma transação com sucesso', async () => {
   expect(received.body[0].acc_id).toBe(accUser.id);
 });
 
+it('Transações de entrada devem ser positivas', async () => {
+  const received = await request(app)
+    .post('/api/transactions')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      description: 'New T',
+      date: new Date(),
+      ammount: -400,
+      type: 'I',
+      acc_id: accUser.id,
+    });
+
+  expect(received.status).toBe(201);
+  expect(received.body[0].acc_id).toBe(accUser.id);
+  expect(received.body[0].ammount).toBe('400.00');
+});
+
+it('Transações de saídas devem ser negativas', async () => {
+  const received = await request(app)
+    .post('/api/transactions')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      description: 'New T',
+      date: new Date(),
+      ammount: 400,
+      type: 'O',
+      acc_id: accUser.id,
+    });
+
+  expect(received.status).toBe(201);
+  expect(received.body[0].acc_id).toBe(accUser.id);
+  expect(received.body[0].ammount).toBe('-400.00');
+});
+
 it('Deve retornar uma transação por ID', async () => {
   const transaction = await app.db('transactions').insert(
     {
