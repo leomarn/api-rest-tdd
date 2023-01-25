@@ -12,5 +12,14 @@ module.exports = (app) => {
     }
   });
 
+  router.post('/', async (request, response, next) => {
+    try {
+      const created = await app.services.transactions.create(request.body);
+      return response.status(201).json(created);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   return router;
 };

@@ -8,5 +8,9 @@ module.exports = (app) => {
       .select();
   };
 
-  return { find };
+  const create = (transaction) => {
+    return app.db('transactions').insert(transaction, '*');
+  };
+
+  return { find, create };
 };

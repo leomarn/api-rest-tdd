@@ -64,9 +64,23 @@ test('Deve listar apenas as transações do usuário', async () => {
     .get('/api/transactions')
     .set('authorization', `bearer ${user.token}`);
 
-  console.log(received.body[0]);
-
   expect(received.status).toBe(200);
   expect(received.body).toHaveLength(1);
   expect(received.body[0].description).toBe('T1');
+});
+
+test('Deve inserir uma transação com sucesso', async () => {
+  const received = await request(app)
+    .post('/api/transactions')
+    .set('authorization', `bearer ${user.token}`)
+    .send({
+      description: 'New T',
+      date: new Date(),
+      ammount: 100,
+      type: 'I',
+      acc_id: accUser.id,
+    });
+
+  expect(received.status).toBe(201);
+  expect(received.body[0].acc_id).toBe(accUser.id);
 });
