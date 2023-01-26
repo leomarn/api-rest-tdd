@@ -52,7 +52,7 @@ module.exports = (app) => {
       });
       return response.status(201).send(result[0]);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   });
 
@@ -78,17 +78,8 @@ module.exports = (app) => {
     }
   });
 
-  router.delete('/:id', async (request, response) => {
+  router.delete('/:id', async (request, response, next) => {
     try {
-      // const account = await app.services.accounts.findOne({
-      //   id: request.params.id,
-      // });
-
-      // if (account.user_id != request.user.id)
-      //   return response
-      //     .status(403)
-      //     .json({ error: 'Este recurso não pertence ao usuário' });
-
       await app.services.accounts.remove(request.params.id);
       response.status(204).json();
     } catch (error) {

@@ -42,7 +42,7 @@ beforeAll(async () => {
   [accUser, accUser2] = accs;
 });
 
-test('Deve listar apenas as transações do usuário', async () => {
+it('Deve listar apenas as transações do usuário', async () => {
   await app.db('transactions').insert([
     {
       description: 'T1',
@@ -69,7 +69,7 @@ test('Deve listar apenas as transações do usuário', async () => {
   expect(received.body[0].description).toBe('T1');
 });
 
-test('Deve inserir uma transação com sucesso', async () => {
+it('Deve inserir uma transação com sucesso', async () => {
   const received = await request(app)
     .post('/api/transactions')
     .set('authorization', `bearer ${user.token}`)
@@ -142,27 +142,27 @@ describe('Ao tentar inserir uma transação inválida', () => {
     expect(received.body.error).toBe(errorMessage);
   };
 
-  test('Não deve sem descrição', () => {
+  it('Não deve sem descrição', () => {
     template({ description: null }, 'Descrição é um atributo obrigatório');
   });
 
-  test('Não deve sem data', () => {
+  it('Não deve sem data', () => {
     template({ date: null }, 'Data é um atributo obrigatório');
   });
 
-  test('Não deve sem valor', () => {
+  it('Não deve sem valor', () => {
     template({ ammount: null }, 'Valor é um atributo obrigatório');
   });
 
-  test('Não deve sem conta', () => {
+  it('Não deve sem conta', () => {
     template({ acc_id: null }, 'Conta é um atributo obrigatório');
   });
 
-  test('Não deve sem tipo', () => {
+  it('Não deve sem tipo', () => {
     template({ type: null }, 'Tipo é um atributo obrigatório');
   });
 
-  test('Não deve tipo inválido', () => {
+  it('Não deve tipo inválido', () => {
     template({ type: 'X' }, 'Tipo é um atributo inválido');
   });
 });
@@ -246,4 +246,25 @@ it('Não deve remover uma transação de outro usuário', async () => {
 
   expect(received.status).toBe(403);
   expect(received.body.error).toBe('Este recurso não pertence ao usuário');
+});
+
+it('Não deve remover conta com transação', async () => {
+  await app.db('transactions').insert(
+    {
+      description: 'T to delete',
+      date: new Date(),
+      ammount: 200,
+      type: 'I',
+      acc_id: accUser.id,
+    },
+    ['id']
+  );
+
+  const received = await request(app)
+    .delete(`/api/accounts/${accUser.id}`)
+    .set('authorization', `bearer ${user.token}`);
+
+  console.log(received.body);
+  expect(received.status).toBe(400);
+  expect(received.body.error).toBe('Essa conta possui transações associadas');
 });
