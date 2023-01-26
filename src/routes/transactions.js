@@ -29,7 +29,9 @@ module.exports = (app) => {
 
   router.get('/:id', async (request, response, next) => {
     try {
-      const result = await app.services.transactions.findOne(request.params.id);
+      const result = await app.services.transactions.findOne({
+        id: request.params.id,
+      });
       return response.status(200).json(result);
     } catch (error) {
       return next(error);
@@ -61,7 +63,7 @@ module.exports = (app) => {
     try {
       await app.services.transactions.remove(request.params.id);
 
-      response.status(204).json();
+      return response.status(204).json();
     } catch (error) {
       next(error);
     }

@@ -263,8 +263,6 @@ it('Não deve remover conta com transação', async () => {
   const received = await request(app)
     .delete(`/api/accounts/${accUser.id}`)
     .set('authorization', `bearer ${user.token}`);
-
-  console.log(received.body);
   expect(received.status).toBe(400);
   expect(received.body.error).toBe('Essa conta possui transações associadas');
 });

@@ -1,4 +1,5 @@
 const validationError = require('../errors/validationError');
+
 module.exports = (app) => {
   const find = (userId, filter = {}) => {
     return app
@@ -9,8 +10,8 @@ module.exports = (app) => {
       .select();
   };
 
-  const findOne = (id) => {
-    return app.db('transactions').where({ id }).first();
+  const findOne = (filter) => {
+    return app.db('transactions').where(filter).first();
   };
 
   const create = (transaction) => {
