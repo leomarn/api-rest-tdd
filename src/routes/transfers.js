@@ -3,6 +3,18 @@ const express = require('express');
 module.exports = (app) => {
   const router = express.Router();
 
+  const validate = async (request, response, next) => {
+    try {
+      await app.services.transfers.validate({
+        ...request.body,
+        user_id: request.user.id,
+      });
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+
   router.get('/', async (request, response, next) => {
     try {
       const transfers = await app.services.transfers.find({
@@ -15,7 +27,7 @@ module.exports = (app) => {
     }
   });
 
-  router.post('/', async (request, response, next) => {
+  router.post('/', validate, async (request, response, next) => {
     try {
       const transfer = await app.services.transfers.create({
         ...request.body,

@@ -1,3 +1,5 @@
+const validationError = require('../errors/validationError');
+
 module.exports = (app) => {
   const find = (filter = {}) => app.db('transfers').where(filter).select();
 
@@ -30,5 +32,31 @@ module.exports = (app) => {
     return result;
   };
 
-  return { find, create };
+  const validate = async (transfer) => {
+    if (!transfer.description)
+      throw new validationError('Descrição é um atributo obrigatório');
+    if (!transfer.date)
+      throw new validationError('Data é um atributo obrigatório');
+    if (!transfer.ammount)
+      throw new validationError('Valor é um atributo obrigatório');
+    if (!transfer.acc_ori_id)
+      throw new validationError('Conta de origem é um atributo obrigatório');
+    if (!transfer.acc_des_id)
+      throw new validationError('Conta de destino é um atributo obrigatório');
+
+    if (transfer.acc_ori_id === transfer.acc_des_id)
+      throw new validationError(
+        'Não é possível transferir de uma conta para ela mesma'
+      );
+
+    const accounts = await app
+      .db('accounts')
+      .whereIn('id', [transfer.acc_des_id, transfer.acc_ori_id]);
+    accounts.forEach((acc) => {
+      if (acc.user_id !== parseInt(transfer.user_id, 10))
+        throw new validationError(`Conta #${acc.id} não pertence ao usuário`);
+    });
+  };
+
+  return { find, create, validate };
 };

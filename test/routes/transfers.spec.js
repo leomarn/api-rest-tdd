@@ -5,8 +5,8 @@ const token =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OTk5OTkwLCJuYW1lIjoiVXNlciAjMSIsIm1haWwiOiJ1c2VyMUBtYWlsLmNvbSJ9.GlSWfOFGsup9MMAWZcVxEj7QPtI-rCOd2x6wPCN2SpA';
 
 beforeAll(async () => {
-  await app.db.migrate.rollback();
-  await app.db.migrate.latest();
+  // await app.db.migrate.rollback();
+  // await app.db.migrate.latest();
   await app.db.seed.run();
 });
 
@@ -101,5 +101,59 @@ describe('Ao salvar uma transferência válida...', () => {
   it('Ambas devem estar com status de realizadas', async () => {
     expect(output.status).toBe(true);
     expect(input.status).toBe(true);
+  });
+});
+
+describe('Ao tentar salvar uma transferência inválida...', () => {
+  const validTransfer = {
+    description: 'Regular Transfer',
+    date: new Date(),
+    ammount: 100,
+    acc_ori_id: 999992,
+    acc_des_id: 999993,
+  };
+
+  const template = async (newData, errorMessage) => {
+    const received = await request(app)
+      .post('/api/transfers')
+      .set('authorization', `bearer ${token}`)
+      .send({ ...validTransfer, ...newData });
+
+    expect(received.status).toBe(400);
+    expect(received.body.error).toBe(errorMessage);
+  };
+
+  it('Não deve inserir sem descrição', () => {
+    template({ description: null }, 'Descrição é um atributo obrigatório');
+  });
+
+  it('Não deve inserir sem data', () => {
+    template({ date: null }, 'Data é um atributo obrigatório');
+  });
+
+  it('Não deve inserir sem valor', () => {
+    template({ ammount: null }, 'Valor é um atributo obrigatório');
+  });
+
+  it('Não deve inserir sem conta de origem', () => {
+    template({ acc_ori_id: null }, 'Conta de origem é um atributo obrigatório');
+  });
+
+  it('Não deve inserir sem conta de destino', () => {
+    template(
+      { acc_des_id: null },
+      'Conta de destino é um atributo obrigatório'
+    );
+  });
+
+  it('Não deve inserir se as contas de origem e destino forem as mesmas', () => {
+    template(
+      { acc_des_id: 999992 },
+      'Não é possível transferir de uma conta para ela mesma'
+    );
+  });
+
+  it('Não deve inserir se as contas pertecerem a outro usuário', () => {
+    template({ acc_des_id: 999994 }, 'Conta #999994 não pertence ao usuário');
   });
 });
