@@ -9,7 +9,20 @@ module.exports = (app) => {
         user_id: request.user.id,
       });
 
-      return response.status(200).send(transfers);
+      return response.status(200).json(transfers);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post('/', async (request, response, next) => {
+    try {
+      const transfer = await app.services.transfers.create({
+        ...request.body,
+        user_id: request.user.id,
+      });
+
+      return response.status(201).json(transfer[0]);
     } catch (error) {
       next(error);
     }
