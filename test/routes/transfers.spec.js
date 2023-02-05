@@ -305,3 +305,12 @@ describe('Ao remover uma transferência', () => {
       });
   });
 });
+
+it('Não deve retornar transferência de outro usuário', async () => {
+  const received = await request(app)
+    .get('/api/transfers/999997')
+    .set('authorization', `bearer ${token}`);
+
+  expect(received.status).toBe(403);
+  expect(received.body.error).toBe('Este recurso não pertence ao usuário');
+});

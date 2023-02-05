@@ -1,4 +1,5 @@
 const express = require('express');
+const indevidoError = require('../errors/indevidoError');
 
 module.exports = (app) => {
   const router = express.Router();
@@ -14,6 +15,20 @@ module.exports = (app) => {
       next(error);
     }
   };
+
+  router.param('id', async (request, response, next) => {
+    try {
+      const result = await app.services.transfers.findById({
+        id: request.params.id,
+      });
+
+      if (result.user_id !== request.user.id)
+        throw new indevidoError('Este recurso não pertence ao usuário');
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
 
   router.get('/', async (request, response, next) => {
     try {
