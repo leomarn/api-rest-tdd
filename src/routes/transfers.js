@@ -27,6 +27,18 @@ module.exports = (app) => {
     }
   });
 
+  router.get('/:id', async (request, response, next) => {
+    try {
+      const result = await app.services.transfers.findById({
+        id: request.params.id,
+      });
+
+      return response.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.post('/', validate, async (request, response, next) => {
     try {
       const transfer = await app.services.transfers.create({

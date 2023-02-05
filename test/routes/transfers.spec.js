@@ -157,3 +157,12 @@ describe('Ao tentar salvar uma transferência inválida...', () => {
     template({ acc_des_id: 999994 }, 'Conta #999994 não pertence ao usuário');
   });
 });
+
+it('Deve retornar uma transferência por Id', async () => {
+  const receivid = await request(app)
+    .get('/api/transfers/999996')
+    .set('authorization', `bearer ${token}`);
+
+  expect(receivid.status).toBe(200);
+  expect(receivid.body.description).toBe('Transfer #1');
+});

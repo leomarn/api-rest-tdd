@@ -3,6 +3,8 @@ const validationError = require('../errors/validationError');
 module.exports = (app) => {
   const find = (filter = {}) => app.db('transfers').where(filter).select();
 
+  const findById = (filter = {}) => app.db('transfers').where(filter).first();
+
   const create = async (transfer) => {
     const result = await app.db('transfers').insert(transfer, '*');
     const transferId = result[0].id;
@@ -58,5 +60,5 @@ module.exports = (app) => {
     });
   };
 
-  return { find, create, validate };
+  return { find, create, validate, findById };
 };
