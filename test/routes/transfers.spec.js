@@ -277,3 +277,31 @@ describe('Ao tentar alterar uma transferência inválida...', () => {
     template({ acc_des_id: 999994 }, 'Conta #999994 não pertence ao usuário');
   });
 });
+
+describe('Ao remover uma transferência', () => {
+  it('Deve retornar o status 204', async () => {
+    const received = await request(app)
+      .delete('/api/transfers/999996')
+      .set('authorization', `bearer ${token}`);
+
+    expect(received.status).toBe(204);
+  });
+
+  it('O registro deve ter sido removido do banco', () => {
+    return app
+      .db('transfers')
+      .where({ id: 999996 })
+      .then((result) => {
+        expect(result).toHaveLength(0);
+      });
+  });
+
+  it('As transações associadas devem ter sido removidas', () => {
+    return app
+      .db('transactions')
+      .where({ transfer_id: 999996 })
+      .then((result) => {
+        expect(result).toHaveLength(0);
+      });
+  });
+});

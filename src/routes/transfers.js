@@ -65,5 +65,15 @@ module.exports = (app) => {
     }
   });
 
+  router.delete('/:id', async (request, response, next) => {
+    try {
+      const result = await app.services.transfers.remove(request.params.id);
+
+      return response.status(204).json();
+    } catch (error) {
+      next(error);
+    }
+  });
+
   return router;
 };
