@@ -34,6 +34,38 @@ module.exports = (app) => {
     return result;
   };
 
+  const update = async (id, transfer) => {
+    const result = await app
+      .db('transfers')
+      .where({ id })
+      .update(transfer, '*');
+
+    const transactions = [
+      {
+        description: `Transfer to acc #${transfer.acc_des_id}`,
+        type: 'O',
+        date: transfer.date,
+        status: true,
+        ammount: transfer.ammount * -1,
+        acc_id: transfer.acc_ori_id,
+        transfer_id: id,
+      },
+      {
+        description: `Transfer from acc #${transfer.acc_ori_id}`,
+        type: 'I',
+        date: transfer.date,
+        status: true,
+        ammount: transfer.ammount,
+        acc_id: transfer.acc_des_id,
+        transfer_id: id,
+      },
+    ];
+
+    await app.db('transactions').where({ transfer_id: id }).del();
+    await app.db('transactions').insert(transactions);
+    return result;
+  };
+
   const validate = async (transfer) => {
     if (!transfer.description)
       throw new validationError('Descrição é um atributo obrigatório');
@@ -60,5 +92,5 @@ module.exports = (app) => {
     });
   };
 
-  return { find, create, validate, findById };
+  return { find, create, validate, findById, update };
 };

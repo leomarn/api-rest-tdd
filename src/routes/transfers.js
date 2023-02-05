@@ -17,11 +17,11 @@ module.exports = (app) => {
 
   router.get('/', async (request, response, next) => {
     try {
-      const transfers = await app.services.transfers.find({
+      const result = await app.services.transfers.find({
         user_id: request.user.id,
       });
 
-      return response.status(200).json(transfers);
+      return response.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -41,12 +41,25 @@ module.exports = (app) => {
 
   router.post('/', validate, async (request, response, next) => {
     try {
-      const transfer = await app.services.transfers.create({
+      const result = await app.services.transfers.create({
         ...request.body,
         user_id: request.user.id,
       });
 
-      return response.status(201).json(transfer[0]);
+      return response.status(201).json(result[0]);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.put('/:id', validate, async (request, response, next) => {
+    try {
+      const result = await app.services.transfers.update(request.params.id, {
+        ...request.body,
+        user_id: request.user.id,
+      });
+
+      return response.status(200).json(result[0]);
     } catch (error) {
       next(error);
     }
